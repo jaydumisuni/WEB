@@ -1,0 +1,141 @@
+name: Verify THETECHGUY tools live
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/verify-ttg-tools-live.yml
+      - verify-ttg-tools-live-trigger.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify live routes and capture screenshots
+        shell: bash
+        run: |
+          mkdir -p evidence
+          cat > /tmp/verify.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const browser = await chromium.launch({ headless: true });
+          const devices = [
+            { name: 'desktop', width: 1440, height: 1000, mobile: false },
+            { name: 'iphone', width: 390, height: 844, mobile: true },
+            { name: 'small-phone', width: 320, height: 568, mobile: true }
+          ];
+          const report = [];
+
+          for (const device of devices) {
+            const context = await browser.newContext({
+              viewport: { width: device.width, height: device.height },
+              isMobile: device.mobile,
+              deviceScaleFactor: device.mobile ? 2 : 1,
+              userAgent: device.mobile
+                ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 Version/18.5 Mobile/15E148 Safari/604.1'
+                : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/138 Safari/537.36'
+            });
+
+            for (const route of [
+              { name: 'home', url: 'https://thetechguyds.com/' },
+              { name: 'tools', url: 'https://thetechguyds.com/tools' },
+              { name: 'tool-retired', url: 'https://thetechguyds.com/tool/' }
+            ]) {
+              const page = await context.newPage();
+              const errors = [];
+              page.on('pageerror', error => errors.push(String(error)));
+              page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+              let response;
+              try {
+                response = await page.goto(`${route.url}${route.url.includes('?') ? '&' : '?'}proof=${Date.now()}-${device.name}`, { waitUntil: 'networkidle', timeout: 90000 });
+              } catch (error) {
+                errors.push(String(error));
+              }
+              await page.waitForTimeout(4000);
+              const status = response?.status() || 0;
+              const text = await page.locator('body').innerText().catch(() => '');
+              const title = await page.title().catch(() => '');
+              const result = {
+                device: device.name,
+                route: route.name,
+                status,
+                finalUrl: page.url(),
+                title,
+                hasHome: text.includes('Start Here'),
+                hasTools: text.includes('One place for every') && text.includes('Tools coming soon'),
+                hasBonny: Boolean(await page.locator('#bonny-launcher').count().catch(() => 0)),
+                errors: errors.slice(0, 20)
+              };
+
+              if (route.name === 'tools' && result.hasBonny) {
+                const launcher = page.locator('#bonny-launcher');
+                const image = launcher.locator('img');
+                result.before = await launcher.boundingBox();
+                result.image = await image.evaluate(img => ({ naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight, src: img.src.slice(0, 40), complete: img.complete }));
+                result.width = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
+                await page.screenshot({ path: `evidence/${device.name}-tools-top.png`, fullPage: false });
+                await page.evaluate(() => window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight)));
+                await page.waitForTimeout(1200);
+                result.after = await launcher.boundingBox();
+                result.fixed = Boolean(result.before && result.after && Math.abs(result.before.x-result.after.x)<1 && Math.abs(result.before.y-result.after.y)<1);
+                await page.screenshot({ path: `evidence/${device.name}-tools-scrolled.png`, fullPage: false });
+                await launcher.click();
+                await page.waitForTimeout(700);
+                result.panelVisible = await page.locator('#bonny-panel').isVisible().catch(() => false);
+                result.panel = await page.locator('#bonny-panel').boundingBox().catch(() => null);
+                await page.screenshot({ path: `evidence/${device.name}-tools-bonny-open.png`, fullPage: false });
+                if (result.panelVisible) {
+                  await page.locator('#bonny-panel textarea').fill('What can you help me with?');
+                  await page.locator('#bonny-panel .bonny-send').click();
+                  await page.waitForTimeout(12000);
+                  result.messages = await page.locator('#bonny-panel .bonny-msg').allInnerTexts();
+                  await page.screenshot({ path: `evidence/${device.name}-tools-bonny-response.png`, fullPage: false });
+                }
+              } else {
+                await page.screenshot({ path: `evidence/${device.name}-${route.name}.png`, fullPage: false });
+              }
+              report.push(result);
+              await page.close();
+            }
+            await context.close();
+          }
+          await browser.close();
+          fs.writeFileSync('evidence/report.json', JSON.stringify(report, null, 2));
+          fs.writeFileSync('evidence/report.md', ['# Live result', '', ...report.map(x => `- ${x.device}/${x.route}: HTTP ${x.status}; final=${x.finalUrl}; home=${x.hasHome}; tools=${x.hasTools}; Bonny=${x.hasBonny}`)].join('\n'));
+          console.log(JSON.stringify(report, null, 2));
+          EOF
+          node /tmp/verify.mjs
+
+      - name: Upload screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ttg-tools-live-evidence
+          path: evidence
+          if-no-files-found: error
+
+      - name: Comment report
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.existsSync('evidence/report.md') ? fs.readFileSync('evidence/report.md', 'utf8') : 'No report produced.';
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
