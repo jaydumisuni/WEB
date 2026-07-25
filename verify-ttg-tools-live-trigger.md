@@ -1,1 +1,1 @@
-Temporary trigger for live desktop and mobile verification. Remove after evidence is collected.
+Temporary trigger for live desktop and mobile verification after production merge 76d6b25e. Remove after evidence is collected.
