@@ -1,0 +1,40 @@
+name: Check TTG Cloudflare preview once
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check known Cloudflare preview routes
+        id: probe
+        shell: bash
+        run: |
+          base='https://verify-direct-tool-route-thetechguydigitalsolutions.thetechguy712.workers.dev'
+          : > report.md
+          for route in / /tools /tool/; do
+            safe=$(echo "$route" | sed 's#[^A-Za-z0-9]#-#g')
+            code=$(curl -sS -L --max-time 45 -D "${safe}.headers" -o "${safe}.html" -w '%{http_code}' "${base}${route}?proof=$(date +%s%N)" || true)
+            final=$(curl -sS -L --max-time 45 -o /dev/null -w '%{url_effective}' "${base}${route}?proof=$(date +%s%N)" || true)
+            home=$(grep -q 'Start Here' "${safe}.html" && echo yes || echo no)
+            tools=$(grep -q 'One place for every' "${safe}.html" && echo yes || echo no)
+            bonny=$(grep -q 'bonny-logo-upgrade\|bonny-launcher\|bonny-tools' "${safe}.html" && echo yes || echo no)
+            title=$(grep -o '<title>[^<]*' "${safe}.html" | head -1 | sed 's/<title>//' || true)
+            echo "- route=$route status=$code final=$final home=$home tools=$tools bonny=$bonny title=$title" | tee -a report.md
+          done
+      - name: Publish preview result
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.existsSync('report.md') ? fs.readFileSync('report.md','utf8') : 'No report generated.';
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body: `## Cloudflare preview route check\n\n${body}` });
