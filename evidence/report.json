@@ -1,0 +1,197 @@
+[
+  {
+    "device": "desktop",
+    "route": "home",
+    "requestedUrl": "https://thetechguyds.com/",
+    "errors": [
+      "pageerror: SyntaxError: Unexpected identifier 'll'"
+    ],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/?proof=1784961748818-desktop",
+    "title": "THETECHGUY DIGITAL SOLUTIONS | Fairytale Business",
+    "text": "THE\nTECH\nGUY\nDIGITAL SOLUTIONS\nHome\nServices\nRepair\niPhones\nLaptops & Android\nStarlink\nPhotography\nSupport Hub\nTools\nPre-Order\nSwap / Top Up\nAbout Us\nWhatsApp\n0\nStarlink supply & setup\nKits, delivery, installation and mounting support.\nBUY\nDevices\nREPAIR\nDevices\nUPGRADE\nSystems\nPRE-ORDER\nAnything\nCURRENCY / RATES\nLive · 06:42 AM\n1 USD to ZMW\nK 18.54\nUS Dollar\nTap for converter\n1 GBP to ZMW\nK 24.78\nBritish Pound\nTap for converter\n1 EUR to ZMW\nK 21.15\nEuro\nTap for converter\n1 ZAR to ZMW\nK 1.11\nSouth African Rand\nTap for converter\n1 CNY to ZMW\nK 2.73\nChinese Yuan\nTap for converter\n Start Here\n\nChoose what you need. We'll take you to the right section.\n\nCheck Repair Price\n\nScreens, batteries, charging, software, diagnostics.\n\nGo to Repair ->\niPhone Swap / Top Up Swap Menu\n\nUpgrade from your current iPhone to another one.\n\nGo to Swap / Top Up ->\nBuy iPhones\n\nView available iPhones and add to cart.\n\nGo to iPhones ->\nPre-Order / Order Anything\n\nSend a photo, link, model, or item name.\n\nGo to Pre-Order ->\nTrusted Service\nExpert Solutions\nFast & Reliable\nProfessional & Premium\nFairytale Business - Make a wish, we sort it.\nNeed help?",
+    "hasHome": true,
+    "hasTools": false,
+    "hasBonny": false,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "pageWidth": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    }
+  },
+  {
+    "device": "desktop",
+    "route": "tools",
+    "requestedUrl": "https://thetechguyds.com/tools",
+    "errors": [],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/tool/?proof=1784961755497-desktop",
+    "title": "Software | THETECHGUY DIGITAL SOLUTIONS",
+    "text": "THETECHGUY\nDIGITAL SOLUTIONS\nMain Site\nEmail Support\nOFFICIAL THETECHGUY SOFTWARE\nOne place for every\nTHETECHGUY tool.\n\nApproved THETECHGUY apps will be listed here with a clear description, supported platform, availability and official download.\n\nView Tools ↓\nEmail Support\n✓ Official apps\n◈ Clear details\n↓ Official downloads\nSOFTWARE COLLECTION\nTools coming soon\n\nOnly approved tools will appear here. The official catalog is currently being prepared.\n\n◈\nTools will be listed here soon\n\nNo apps are being shown yet. Approved tools will appear here with their description and download button.\n\nHELP & BUG REPORTS\nContact the team by email.\n\nInclude the tool name, app version, operating system and a screenshot or the exact error message.\n\nEmail Support\nReport a Bug\n\nTHETECHGUY DIGITAL SOLUTIONS\nFairytale Business — Make a wish, we sort it.\n\nsupport@thetechguyds.com\n\n© 2026 THETECHGUY",
+    "hasHome": false,
+    "hasTools": true,
+    "hasBonny": false,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "pageWidth": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    }
+  },
+  {
+    "device": "desktop",
+    "route": "tool-retired",
+    "requestedUrl": "https://thetechguyds.com/tool/",
+    "errors": [],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/tool/?proof=1784961761862-desktop",
+    "title": "Software | THETECHGUY DIGITAL SOLUTIONS",
+    "text": "THETECHGUY\nDIGITAL SOLUTIONS\nMain Site\nEmail Support\nOFFICIAL THETECHGUY SOFTWARE\nOne place for every\nTHETECHGUY tool.\n\nApproved THETECHGUY apps will be listed here with a clear description, supported platform, availability and official download.\n\nView Tools ↓\nEmail Support\n✓ Official apps\n◈ Clear details\n↓ Official downloads\nSOFTWARE COLLECTION\nTools coming soon\n\nOnly approved tools will appear here. The official catalog is currently being prepared.\n\n◈\nTools will be listed here soon\n\nNo apps are being shown yet. Approved tools will appear here with their description and download button.\n\nHELP & BUG REPORTS\nContact the team by email.\n\nInclude the tool name, app version, operating system and a screenshot or the exact error message.\n\nEmail Support\nReport a Bug\n\nTHETECHGUY DIGITAL SOLUTIONS\nFairytale Business — Make a wish, we sort it.\n\nsupport@thetechguyds.com\n\n© 2026 THETECHGUY",
+    "hasHome": false,
+    "hasTools": true,
+    "hasBonny": false,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "pageWidth": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    }
+  },
+  {
+    "device": "iphone",
+    "route": "home",
+    "requestedUrl": "https://thetechguyds.com/",
+    "errors": [
+      "pageerror: SyntaxError: Unexpected identifier 'll'"
+    ],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/?proof=1784961768081-iphone",
+    "title": "THETECHGUY DIGITAL SOLUTIONS | Fairytale Business",
+    "text": "THE\nTECH\nGUY\nDIGITAL SOLUTIONS\n0\nStarlink supply & setup\nKits, delivery, installation and mounting support.\nBUY\nDevices\nREPAIR\nDevices\nUPGRADE\nSystems\nPRE-ORDER\nAnything\n Start Here\n\nChoose what you need. We'll take you to the right section.\n\nCheck Repair Price\n\nScreens, batteries, charging, software, diagnostics.\n\nGo to Repair ->\niPhone Swap / Top Up Swap Menu\n\nUpgrade from your current iPhone to another one.\n\nGo to Swap / Top Up ->\nBuy iPhones\n\nView available iPhones and add to cart.\n\nGo to iPhones ->\nPre-Order / Order Anything\n\nSend a photo, link, model, or item name.\n\nGo to Pre-Order ->\nTrusted Service\nExpert Solutions\nFast & Reliable\nProfessional & Premium\nFairytale Business - Make a wish, we sort it.\nCurrency / Rates\n\nLive exchange rates reload when the page refreshes. Cards show each currency into ZMW.\n\nLive · 06:42 AM\n1 USD to ZMW\nK 18.54\nUS Dollar\nTap for converter\n1 GBP to ZMW\nK 24.78\nBritish Pound\nTap for converter\n1 EUR to ZMW\nK 21.15\nEuro\nTap for converter\n1 ZAR to ZMW\nK 1.11\nSouth African Rand\nTap for converter\n1 CNY to ZMW\nK 2.73\nChinese Yuan\nTap for converter\nAmount\nFrom\nZMW\nUSD\nGBP\nEUR\nZAR\nCNY\nTo\nZMW\nUSD\nGBP\nEUR\nZAR\nCNY\nRESULT\n--\nNeed help?",
+    "hasHome": true,
+    "hasTools": false,
+    "hasBonny": false,
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageWidth": {
+      "scrollWidth": 390,
+      "clientWidth": 390
+    }
+  },
+  {
+    "device": "iphone",
+    "route": "tools",
+    "requestedUrl": "https://thetechguyds.com/tools",
+    "errors": [],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/tool/?proof=1784961774519-iphone",
+    "title": "Software | THETECHGUY DIGITAL SOLUTIONS",
+    "text": "THETECHGUY\nEmail Support\nOFFICIAL THETECHGUY SOFTWARE\nOne place for every\nTHETECHGUY tool.\n\nApproved THETECHGUY apps will be listed here with a clear description, supported platform, availability and official download.\n\nView Tools ↓\nEmail Support\n✓ Official apps\n◈ Clear details\n↓ Official downloads\nSOFTWARE COLLECTION\nTools coming soon\n\nOnly approved tools will appear here. The official catalog is currently being prepared.\n\n0 TOOLS\n◈\nTools will be listed here soon\n\nNo apps are being shown yet. Approved tools will appear here with their description and download button.\n\nHELP & BUG REPORTS\nContact the team by email.\n\nInclude the tool name, app version, operating system and a screenshot or the exact error message.\n\nEmail Support\nReport a Bug\n\nTHETECHGUY DIGITAL SOLUTIONS\nFairytale Business — Make a wish, we sort it.\n\nsupport@thetechguyds.com\n\n© 2026 THETECHGUY",
+    "hasHome": false,
+    "hasTools": true,
+    "hasBonny": false,
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageWidth": {
+      "scrollWidth": 390,
+      "clientWidth": 390
+    }
+  },
+  {
+    "device": "iphone",
+    "route": "tool-retired",
+    "requestedUrl": "https://thetechguyds.com/tool/",
+    "errors": [],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/tool/?proof=1784961780680-iphone",
+    "title": "Software | THETECHGUY DIGITAL SOLUTIONS",
+    "text": "THETECHGUY\nEmail Support\nOFFICIAL THETECHGUY SOFTWARE\nOne place for every\nTHETECHGUY tool.\n\nApproved THETECHGUY apps will be listed here with a clear description, supported platform, availability and official download.\n\nView Tools ↓\nEmail Support\n✓ Official apps\n◈ Clear details\n↓ Official downloads\nSOFTWARE COLLECTION\nTools coming soon\n\nOnly approved tools will appear here. The official catalog is currently being prepared.\n\n0 TOOLS\n◈\nTools will be listed here soon\n\nNo apps are being shown yet. Approved tools will appear here with their description and download button.\n\nHELP & BUG REPORTS\nContact the team by email.\n\nInclude the tool name, app version, operating system and a screenshot or the exact error message.\n\nEmail Support\nReport a Bug\n\nTHETECHGUY DIGITAL SOLUTIONS\nFairytale Business — Make a wish, we sort it.\n\nsupport@thetechguyds.com\n\n© 2026 THETECHGUY",
+    "hasHome": false,
+    "hasTools": true,
+    "hasBonny": false,
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageWidth": {
+      "scrollWidth": 390,
+      "clientWidth": 390
+    }
+  },
+  {
+    "device": "small-phone",
+    "route": "home",
+    "requestedUrl": "https://thetechguyds.com/",
+    "errors": [
+      "pageerror: SyntaxError: Unexpected identifier 'll'"
+    ],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/?proof=1784961786815-small-phone",
+    "title": "THETECHGUY DIGITAL SOLUTIONS | Fairytale Business",
+    "text": "THE\nTECH\nGUY\nDIGITAL SOLUTIONS\n0\nStarlink supply & setup\nKits, delivery, installation and mounting support.\nBUY\nDevices\nREPAIR\nDevices\nUPGRADE\nSystems\nPRE-ORDER\nAnything\n Start Here\n\nChoose what you need. We'll take you to the right section.\n\nCheck Repair Price\n\nScreens, batteries, charging, software, diagnostics.\n\nGo to Repair ->\niPhone Swap / Top Up Swap Menu\n\nUpgrade from your current iPhone to another one.\n\nGo to Swap / Top Up ->\nBuy iPhones\n\nView available iPhones and add to cart.\n\nGo to iPhones ->\nPre-Order / Order Anything\n\nSend a photo, link, model, or item name.\n\nGo to Pre-Order ->\nTrusted Service\nExpert Solutions\nFast & Reliable\nProfessional & Premium\nFairytale Business - Make a wish, we sort it.\nCurrency / Rates\n\nLive exchange rates reload when the page refreshes. Cards show each currency into ZMW.\n\nLive · 06:43 AM\n1 USD to ZMW\nK 18.54\nUS Dollar\nTap for converter\n1 GBP to ZMW\nK 24.78\nBritish Pound\nTap for converter\n1 EUR to ZMW\nK 21.15\nEuro\nTap for converter\n1 ZAR to ZMW\nK 1.11\nSouth African Rand\nTap for converter\n1 CNY to ZMW\nK 2.73\nChinese Yuan\nTap for converter\nAmount\nFrom\nZMW\nUSD\nGBP\nEUR\nZAR\nCNY\nTo\nZMW\nUSD\nGBP\nEUR\nZAR\nCNY\nRESULT\n--\nNeed help?",
+    "hasHome": true,
+    "hasTools": false,
+    "hasBonny": false,
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "pageWidth": {
+      "scrollWidth": 320,
+      "clientWidth": 320
+    }
+  },
+  {
+    "device": "small-phone",
+    "route": "tools",
+    "requestedUrl": "https://thetechguyds.com/tools",
+    "errors": [],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/tool/?proof=1784961793267-small-phone",
+    "title": "Software | THETECHGUY DIGITAL SOLUTIONS",
+    "text": "THETECHGUY\nEmail Support\nOFFICIAL THETECHGUY SOFTWARE\nOne place for every\nTHETECHGUY tool.\n\nApproved THETECHGUY apps will be listed here with a clear description, supported platform, availability and official download.\n\nView Tools ↓\nEmail Support\n✓ Official apps\n◈ Clear details\n↓ Official downloads\nSOFTWARE COLLECTION\nTools coming soon\n\nOnly approved tools will appear here. The official catalog is currently being prepared.\n\n0 TOOLS\n◈\nTools will be listed here soon\n\nNo apps are being shown yet. Approved tools will appear here with their description and download button.\n\nHELP & BUG REPORTS\nContact the team by email.\n\nInclude the tool name, app version, operating system and a screenshot or the exact error message.\n\nEmail Support\nReport a Bug\n\nTHETECHGUY DIGITAL SOLUTIONS\nFairytale Business — Make a wish, we sort it.\n\nsupport@thetechguyds.com\n\n© 2026 THETECHGUY",
+    "hasHome": false,
+    "hasTools": true,
+    "hasBonny": false,
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "pageWidth": {
+      "scrollWidth": 320,
+      "clientWidth": 320
+    }
+  },
+  {
+    "device": "small-phone",
+    "route": "tool-retired",
+    "requestedUrl": "https://thetechguyds.com/tool/",
+    "errors": [],
+    "status": 200,
+    "finalUrl": "https://thetechguyds.com/tool/?proof=1784961799449-small-phone",
+    "title": "Software | THETECHGUY DIGITAL SOLUTIONS",
+    "text": "THETECHGUY\nEmail Support\nOFFICIAL THETECHGUY SOFTWARE\nOne place for every\nTHETECHGUY tool.\n\nApproved THETECHGUY apps will be listed here with a clear description, supported platform, availability and official download.\n\nView Tools ↓\nEmail Support\n✓ Official apps\n◈ Clear details\n↓ Official downloads\nSOFTWARE COLLECTION\nTools coming soon\n\nOnly approved tools will appear here. The official catalog is currently being prepared.\n\n0 TOOLS\n◈\nTools will be listed here soon\n\nNo apps are being shown yet. Approved tools will appear here with their description and download button.\n\nHELP & BUG REPORTS\nContact the team by email.\n\nInclude the tool name, app version, operating system and a screenshot or the exact error message.\n\nEmail Support\nReport a Bug\n\nTHETECHGUY DIGITAL SOLUTIONS\nFairytale Business — Make a wish, we sort it.\n\nsupport@thetechguyds.com\n\n© 2026 THETECHGUY",
+    "hasHome": false,
+    "hasTools": true,
+    "hasBonny": false,
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "pageWidth": {
+      "scrollWidth": 320,
+      "clientWidth": 320
+    }
+  }
+]
