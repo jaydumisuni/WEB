@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
   pull-requests: write
 
@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: verify-ttg-tools-live
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -31,6 +35,7 @@ jobs:
         shell: bash
         continue-on-error: true
         run: |
+          rm -rf evidence
           mkdir -p evidence
           cat > /tmp/verify.mjs <<'EOF'
           import { chromium } from 'playwright';
@@ -49,13 +54,15 @@ jobs:
           const report = [];
           let browser;
 
+          const shot = async (page, name) => page.screenshot({ path: `evidence/${name}.jpg`, type: 'jpeg', quality: 72, fullPage: false }).catch(() => {});
+
           try {
             browser = await chromium.launch({ headless: true });
             for (const device of devices) {
               const context = await browser.newContext({
                 viewport: { width: device.width, height: device.height },
                 isMobile: device.mobile,
-                deviceScaleFactor: device.mobile ? 2 : 1,
+                deviceScaleFactor: 1,
                 userAgent: device.mobile
                   ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 Version/18.5 Mobile/15E148 Safari/604.1'
                   : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/138 Safari/537.36'
@@ -68,10 +75,9 @@ jobs:
                   page = await context.newPage();
                   page.on('pageerror', error => result.errors.push(`pageerror: ${String(error)}`));
                   page.on('console', message => { if (message.type() === 'error') result.errors.push(`console: ${message.text()}`); });
-                  const url = `${route.url}${route.url.includes('?') ? '&' : '?'}proof=${Date.now()}-${device.name}`;
                   let response = null;
                   try {
-                    response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                    response = await page.goto(`${route.url}${route.url.includes('?') ? '&' : '?'}proof=${Date.now()}-${device.name}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
                   } catch (error) {
                     result.errors.push(`goto: ${String(error)}`);
                   }
@@ -79,14 +85,14 @@ jobs:
                   result.status = response?.status() || 0;
                   result.finalUrl = page.url();
                   result.title = await page.title().catch(() => '');
-                  result.text = (await page.locator('body').innerText().catch(() => '')).slice(0, 1000);
-                  result.hasHome = result.text.includes('Start Here');
-                  result.hasTools = result.text.includes('One place for every') && result.text.includes('Tools coming soon');
+                  const text = await page.locator('body').innerText().catch(() => '');
+                  result.text = text.slice(0, 1200);
+                  result.hasHome = text.includes('Start Here');
+                  result.hasTools = text.includes('One place for every') && text.includes('Tools coming soon');
                   result.hasBonny = Boolean(await page.locator('#bonny-launcher').count().catch(() => 0));
                   result.viewport = { width: device.width, height: device.height };
                   result.pageWidth = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth })).catch(() => null);
-
-                  await page.screenshot({ path: `evidence/${device.name}-${route.name}-initial.png`, fullPage: false }).catch(error => result.errors.push(`screenshot: ${String(error)}`));
+                  await shot(page, `${device.name}-${route.name}-initial`);
 
                   if (route.name === 'tools' && result.hasBonny) {
                     try {
@@ -98,12 +104,12 @@ jobs:
                       await page.waitForTimeout(1200);
                       result.after = await launcher.boundingBox();
                       result.fixed = Boolean(result.before && result.after && Math.abs(result.before.x-result.after.x)<1 && Math.abs(result.before.y-result.after.y)<1);
-                      await page.screenshot({ path: `evidence/${device.name}-tools-scrolled.png`, fullPage: false });
+                      await shot(page, `${device.name}-tools-scrolled`);
                       await launcher.click({ timeout: 10000 });
                       await page.waitForTimeout(800);
                       result.panelVisible = await page.locator('#bonny-panel').isVisible().catch(() => false);
                       result.panel = await page.locator('#bonny-panel').boundingBox().catch(() => null);
-                      await page.screenshot({ path: `evidence/${device.name}-tools-bonny-open.png`, fullPage: false });
+                      await shot(page, `${device.name}-tools-bonny-open`);
                       if (result.panelVisible) {
                         const textarea = page.locator('#bonny-panel textarea');
                         const send = page.locator('#bonny-panel .bonny-send');
@@ -112,7 +118,7 @@ jobs:
                           await send.click();
                           await page.waitForTimeout(12000);
                           result.messages = await page.locator('#bonny-panel .bonny-msg').allInnerTexts().catch(() => []);
-                          await page.screenshot({ path: `evidence/${device.name}-tools-bonny-response.png`, fullPage: false });
+                          await shot(page, `${device.name}-tools-bonny-response`);
                         } else {
                           result.errors.push('Bonny textarea or send button missing');
                         }
@@ -134,30 +140,45 @@ jobs:
             report.push({ fatal: String(error) });
           } finally {
             if (browser) await browser.close().catch(() => {});
-            fs.writeFileSync('evidence/report.json', JSON.stringify(report, null, 2));
-            fs.writeFileSync('evidence/report.md', [
+            const summary = [
               '# Live result',
               '',
-              ...report.map(x => x.fatal ? `- FATAL: ${x.fatal}` : `- ${x.device}/${x.route}: HTTP ${x.status || 0}; final=${x.finalUrl || ''}; home=${Boolean(x.hasHome)}; tools=${Boolean(x.hasTools)}; Bonny=${Boolean(x.hasBonny)}; errors=${(x.errors || []).join(' | ')}`)
-            ].join('\n'));
-            console.log(JSON.stringify(report, null, 2));
+              ...report.map(x => x.fatal ? `- FATAL: ${x.fatal}` : `- ${x.device}/${x.route}: HTTP ${x.status || 0}; final=${x.finalUrl || ''}; home=${Boolean(x.hasHome)}; tools=${Boolean(x.hasTools)}; Bonny=${Boolean(x.hasBonny)}; fixed=${Boolean(x.fixed)}; image=${JSON.stringify(x.image || null)}; errors=${(x.errors || []).join(' | ')}`)
+            ].join('\n');
+            fs.writeFileSync('evidence/report.json', JSON.stringify(report, null, 2));
+            fs.writeFileSync('evidence/report.md', summary);
+            console.log(summary);
           }
           EOF
           node /tmp/verify.mjs
 
-      - name: Upload screenshots and report
+      - name: Commit temporary evidence to verification branch
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ttg-tools-live-evidence
-          path: evidence
-          if-no-files-found: error
+        shell: bash
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -f evidence
+          git diff --cached --quiet || git commit -m "Capture live tools visual evidence"
+          git push origin HEAD:verify-ttg-tools-live
 
-      - name: Comment report
-        if: always() && github.event_name == 'pull_request'
+      - name: Update temporary verification issue
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const body = fs.existsSync('evidence/report.md') ? fs.readFileSync('evidence/report.md', 'utf8') : 'No report produced.';
-            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
+            const report = fs.existsSync('evidence/report.md') ? fs.readFileSync('evidence/report.md', 'utf8') : 'No report produced.';
+            const base = 'https://raw.githubusercontent.com/jaydumisuni/WEB/verify-ttg-tools-live/evidence/';
+            const images = [
+              'iphone-home-initial.jpg',
+              'iphone-tools-initial.jpg',
+              'iphone-tools-scrolled.jpg',
+              'iphone-tools-bonny-open.jpg',
+              'iphone-tools-bonny-response.jpg',
+              'iphone-tool-retired-initial.jpg',
+              'desktop-tools-initial.jpg',
+              'small-phone-tools-initial.jpg'
+            ];
+            const body = `Temporary verification evidence. Remove after completion.\n\n${report}\n\n## Screenshots\n\n${images.map(name => `### ${name}\n\n![${name}](${base}${name})`).join('\n\n')}`;
+            await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: 1, body });
