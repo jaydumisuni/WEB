@@ -1,0 +1,3 @@
+route=/ status=200 final=https://verify-direct-tool-route-thetechguydigitalsolutions.thetechguy712.workers.dev/?proof=1784963033576166407 home=yes tools=no bonny=no
+route=/tools status=200 final=https://verify-direct-tool-route-thetechguydigitalsolutions.thetechguy712.workers.dev/tools?proof=1784963033954591679 home=yes tools=no bonny=no
+route=/tool/ status=307 final=https://verify-direct-tool-route-thetechguydigitalsolutions.thetechguy712.workers.dev/tool/?proof=1784963035448062541 home=no tools=no bonny=no
