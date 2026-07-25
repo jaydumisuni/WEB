@@ -37,7 +37,7 @@ jobs:
         run: |
           rm -rf evidence
           mkdir -p evidence
-          cat > /tmp/verify.mjs <<'EOF'
+          cat > verify-live-runner.mjs <<'EOF'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
@@ -150,12 +150,13 @@ jobs:
             console.log(summary);
           }
           EOF
-          node /tmp/verify.mjs
+          node verify-live-runner.mjs
 
       - name: Commit temporary evidence to verification branch
         if: always()
         shell: bash
         run: |
+          rm -f verify-live-runner.mjs
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add -f evidence
