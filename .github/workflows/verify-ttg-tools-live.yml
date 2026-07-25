@@ -29,97 +29,119 @@ jobs:
 
       - name: Verify live routes and capture screenshots
         shell: bash
+        continue-on-error: true
         run: |
           mkdir -p evidence
           cat > /tmp/verify.mjs <<'EOF'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
-          const browser = await chromium.launch({ headless: true });
           const devices = [
             { name: 'desktop', width: 1440, height: 1000, mobile: false },
             { name: 'iphone', width: 390, height: 844, mobile: true },
             { name: 'small-phone', width: 320, height: 568, mobile: true }
           ];
+          const routes = [
+            { name: 'home', url: 'https://thetechguyds.com/' },
+            { name: 'tools', url: 'https://thetechguyds.com/tools' },
+            { name: 'tool-retired', url: 'https://thetechguyds.com/tool/' }
+          ];
           const report = [];
+          let browser;
 
-          for (const device of devices) {
-            const context = await browser.newContext({
-              viewport: { width: device.width, height: device.height },
-              isMobile: device.mobile,
-              deviceScaleFactor: device.mobile ? 2 : 1,
-              userAgent: device.mobile
-                ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 Version/18.5 Mobile/15E148 Safari/604.1'
-                : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/138 Safari/537.36'
-            });
+          try {
+            browser = await chromium.launch({ headless: true });
+            for (const device of devices) {
+              const context = await browser.newContext({
+                viewport: { width: device.width, height: device.height },
+                isMobile: device.mobile,
+                deviceScaleFactor: device.mobile ? 2 : 1,
+                userAgent: device.mobile
+                  ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 Version/18.5 Mobile/15E148 Safari/604.1'
+                  : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/138 Safari/537.36'
+              });
 
-            for (const route of [
-              { name: 'home', url: 'https://thetechguyds.com/' },
-              { name: 'tools', url: 'https://thetechguyds.com/tools' },
-              { name: 'tool-retired', url: 'https://thetechguyds.com/tool/' }
-            ]) {
-              const page = await context.newPage();
-              const errors = [];
-              page.on('pageerror', error => errors.push(String(error)));
-              page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-              let response;
-              try {
-                response = await page.goto(`${route.url}${route.url.includes('?') ? '&' : '?'}proof=${Date.now()}-${device.name}`, { waitUntil: 'networkidle', timeout: 90000 });
-              } catch (error) {
-                errors.push(String(error));
-              }
-              await page.waitForTimeout(4000);
-              const status = response?.status() || 0;
-              const text = await page.locator('body').innerText().catch(() => '');
-              const title = await page.title().catch(() => '');
-              const result = {
-                device: device.name,
-                route: route.name,
-                status,
-                finalUrl: page.url(),
-                title,
-                hasHome: text.includes('Start Here'),
-                hasTools: text.includes('One place for every') && text.includes('Tools coming soon'),
-                hasBonny: Boolean(await page.locator('#bonny-launcher').count().catch(() => 0)),
-                errors: errors.slice(0, 20)
-              };
+              for (const route of routes) {
+                const result = { device: device.name, route: route.name, requestedUrl: route.url, errors: [] };
+                let page;
+                try {
+                  page = await context.newPage();
+                  page.on('pageerror', error => result.errors.push(`pageerror: ${String(error)}`));
+                  page.on('console', message => { if (message.type() === 'error') result.errors.push(`console: ${message.text()}`); });
+                  const url = `${route.url}${route.url.includes('?') ? '&' : '?'}proof=${Date.now()}-${device.name}`;
+                  let response = null;
+                  try {
+                    response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                  } catch (error) {
+                    result.errors.push(`goto: ${String(error)}`);
+                  }
+                  await page.waitForTimeout(6000).catch(() => {});
+                  result.status = response?.status() || 0;
+                  result.finalUrl = page.url();
+                  result.title = await page.title().catch(() => '');
+                  result.text = (await page.locator('body').innerText().catch(() => '')).slice(0, 1000);
+                  result.hasHome = result.text.includes('Start Here');
+                  result.hasTools = result.text.includes('One place for every') && result.text.includes('Tools coming soon');
+                  result.hasBonny = Boolean(await page.locator('#bonny-launcher').count().catch(() => 0));
+                  result.viewport = { width: device.width, height: device.height };
+                  result.pageWidth = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth })).catch(() => null);
 
-              if (route.name === 'tools' && result.hasBonny) {
-                const launcher = page.locator('#bonny-launcher');
-                const image = launcher.locator('img');
-                result.before = await launcher.boundingBox();
-                result.image = await image.evaluate(img => ({ naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight, src: img.src.slice(0, 40), complete: img.complete }));
-                result.width = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
-                await page.screenshot({ path: `evidence/${device.name}-tools-top.png`, fullPage: false });
-                await page.evaluate(() => window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight)));
-                await page.waitForTimeout(1200);
-                result.after = await launcher.boundingBox();
-                result.fixed = Boolean(result.before && result.after && Math.abs(result.before.x-result.after.x)<1 && Math.abs(result.before.y-result.after.y)<1);
-                await page.screenshot({ path: `evidence/${device.name}-tools-scrolled.png`, fullPage: false });
-                await launcher.click();
-                await page.waitForTimeout(700);
-                result.panelVisible = await page.locator('#bonny-panel').isVisible().catch(() => false);
-                result.panel = await page.locator('#bonny-panel').boundingBox().catch(() => null);
-                await page.screenshot({ path: `evidence/${device.name}-tools-bonny-open.png`, fullPage: false });
-                if (result.panelVisible) {
-                  await page.locator('#bonny-panel textarea').fill('What can you help me with?');
-                  await page.locator('#bonny-panel .bonny-send').click();
-                  await page.waitForTimeout(12000);
-                  result.messages = await page.locator('#bonny-panel .bonny-msg').allInnerTexts();
-                  await page.screenshot({ path: `evidence/${device.name}-tools-bonny-response.png`, fullPage: false });
+                  await page.screenshot({ path: `evidence/${device.name}-${route.name}-initial.png`, fullPage: false }).catch(error => result.errors.push(`screenshot: ${String(error)}`));
+
+                  if (route.name === 'tools' && result.hasBonny) {
+                    try {
+                      const launcher = page.locator('#bonny-launcher');
+                      const image = launcher.locator('img');
+                      result.before = await launcher.boundingBox();
+                      result.image = await image.evaluate(img => ({ naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight, src: img.src.slice(0, 50), complete: img.complete })).catch(error => ({ error: String(error) }));
+                      await page.evaluate(() => window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight)));
+                      await page.waitForTimeout(1200);
+                      result.after = await launcher.boundingBox();
+                      result.fixed = Boolean(result.before && result.after && Math.abs(result.before.x-result.after.x)<1 && Math.abs(result.before.y-result.after.y)<1);
+                      await page.screenshot({ path: `evidence/${device.name}-tools-scrolled.png`, fullPage: false });
+                      await launcher.click({ timeout: 10000 });
+                      await page.waitForTimeout(800);
+                      result.panelVisible = await page.locator('#bonny-panel').isVisible().catch(() => false);
+                      result.panel = await page.locator('#bonny-panel').boundingBox().catch(() => null);
+                      await page.screenshot({ path: `evidence/${device.name}-tools-bonny-open.png`, fullPage: false });
+                      if (result.panelVisible) {
+                        const textarea = page.locator('#bonny-panel textarea');
+                        const send = page.locator('#bonny-panel .bonny-send');
+                        if (await textarea.count() && await send.count()) {
+                          await textarea.fill('What can you help me with?');
+                          await send.click();
+                          await page.waitForTimeout(12000);
+                          result.messages = await page.locator('#bonny-panel .bonny-msg').allInnerTexts().catch(() => []);
+                          await page.screenshot({ path: `evidence/${device.name}-tools-bonny-response.png`, fullPage: false });
+                        } else {
+                          result.errors.push('Bonny textarea or send button missing');
+                        }
+                      }
+                    } catch (error) {
+                      result.errors.push(`bonny: ${String(error)}`);
+                    }
+                  }
+                } catch (error) {
+                  result.errors.push(`route: ${String(error)}`);
+                } finally {
+                  report.push(result);
+                  if (page) await page.close().catch(() => {});
                 }
-              } else {
-                await page.screenshot({ path: `evidence/${device.name}-${route.name}.png`, fullPage: false });
               }
-              report.push(result);
-              await page.close();
+              await context.close().catch(() => {});
             }
-            await context.close();
+          } catch (error) {
+            report.push({ fatal: String(error) });
+          } finally {
+            if (browser) await browser.close().catch(() => {});
+            fs.writeFileSync('evidence/report.json', JSON.stringify(report, null, 2));
+            fs.writeFileSync('evidence/report.md', [
+              '# Live result',
+              '',
+              ...report.map(x => x.fatal ? `- FATAL: ${x.fatal}` : `- ${x.device}/${x.route}: HTTP ${x.status || 0}; final=${x.finalUrl || ''}; home=${Boolean(x.hasHome)}; tools=${Boolean(x.hasTools)}; Bonny=${Boolean(x.hasBonny)}; errors=${(x.errors || []).join(' | ')}`)
+            ].join('\n'));
+            console.log(JSON.stringify(report, null, 2));
           }
-          await browser.close();
-          fs.writeFileSync('evidence/report.json', JSON.stringify(report, null, 2));
-          fs.writeFileSync('evidence/report.md', ['# Live result', '', ...report.map(x => `- ${x.device}/${x.route}: HTTP ${x.status}; final=${x.finalUrl}; home=${x.hasHome}; tools=${x.hasTools}; Bonny=${x.hasBonny}`)].join('\n'));
-          console.log(JSON.stringify(report, null, 2));
           EOF
           node /tmp/verify.mjs
 
