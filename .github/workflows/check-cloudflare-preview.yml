@@ -1,0 +1,40 @@
+name: Check Cloudflare branch preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/check-cloudflare-preview.yml
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: verify-ttg-tools-live
+      - name: Check preview routes
+        shell: bash
+        run: |
+          base='https://verify-direct-tool-route-thetechguydigitalsolutions.thetechguy712.workers.dev'
+          mkdir -p preview-evidence
+          : > preview-evidence/report.txt
+          for route in / /tools /tool/; do
+            safe=$(echo "$route" | sed 's#[^A-Za-z0-9]#-#g')
+            code=$(curl -sS -L --max-time 60 -o "preview-evidence/${safe}.html" -w '%{http_code}' "${base}${route}?proof=$(date +%s%N)" || true)
+            final=$(curl -sS -L --max-time 60 -o /dev/null -w '%{url_effective}' "${base}${route}?proof=$(date +%s%N)" || true)
+            home=$(grep -q 'Start Here' "preview-evidence/${safe}.html" && echo yes || echo no)
+            tools=$(grep -q 'One place for every' "preview-evidence/${safe}.html" && echo yes || echo no)
+            bonny=$(grep -q 'bonny-tools\|bonny-launcher' "preview-evidence/${safe}.html" && echo yes || echo no)
+            echo "route=$route status=$code final=$final home=$home tools=$tools bonny=$bonny" | tee -a preview-evidence/report.txt
+          done
+      - name: Commit preview report
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -f preview-evidence
+          git diff --cached --quiet || git commit -m 'Capture Cloudflare preview state'
+          git push origin HEAD:verify-ttg-tools-live
